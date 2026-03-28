@@ -72,44 +72,44 @@ function AgentRoster() {
               key={agent.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-dark-panel border border-dark-border rounded-2xl p-6 flex flex-col hover:border-amber-900/60 transition-colors"
+              className="bg-dark-panel border border-dark-border rounded-2xl overflow-hidden flex flex-col hover:border-amber-900/60 transition-colors"
             >
-              {/* Sprite — big, centered */}
-              <div className="flex justify-center mb-5">
+              {/* ── Image area — top 2/3 ── */}
+              <div className="flex items-center justify-center bg-black/30 h-56">
                 <img
                   src={sprite}
                   alt={agent.label}
-                  width={120}
-                  height={120}
+                  width={200}
+                  height={200}
                   style={{ imageRendering: 'pixelated' }}
-                  className="object-contain drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)]"
+                  className="drop-shadow-[0_6px_20px_rgba(0,0,0,0.95)]"
                 />
               </div>
 
-              {/* Name + status */}
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-white text-base font-bold font-mono">{agent.label}</span>
-                <span className={`flex items-center gap-1.5 text-sm font-mono ${st.text}`}>
-                  <span className={`w-2 h-2 rounded-full ${st.dot} ${agent.status === 'working' ? 'animate-pulse' : ''}`} />
-                  {st.label}
-                </span>
-              </div>
+              {/* ── Info area — bottom ── */}
+              <div className="p-5 flex flex-col gap-2 border-t border-dark-border">
+                {/* Name + status */}
+                <div className="flex items-center justify-between">
+                  <span className="text-white text-base font-bold font-mono">{agent.label}</span>
+                  <span className={`flex items-center gap-1.5 text-sm font-mono ${st.text}`}>
+                    <span className={`w-2 h-2 rounded-full ${st.dot} ${agent.status === 'working' ? 'animate-pulse' : ''}`} />
+                    {st.label}
+                  </span>
+                </div>
 
-              {/* Address */}
-              <div className="text-stone-300 text-sm font-mono mb-3">{agent.addr}</div>
+                <div className="text-stone-300 text-sm font-mono">{agent.addr}</div>
 
-              {/* Task */}
-              <div className="text-sm font-mono mb-4 min-h-[1.25rem]">
-                {agent.task
-                  ? <span className="text-amber-400">{agent.task}</span>
-                  : <span className="text-stone-500">—</span>
-                }
-              </div>
+                <div className="text-sm font-mono min-h-[1.25rem]">
+                  {agent.task
+                    ? <span className="text-amber-400">{agent.task}</span>
+                    : <span className="text-stone-500">—</span>
+                  }
+                </div>
 
-              {/* Device + credits */}
-              <div className="flex items-center justify-between mt-auto pt-3 border-t border-dark-border">
-                <span className="text-stone-300 text-sm font-mono">{agent.device}</span>
-                <span className="text-amber-500 text-sm font-mono font-bold">{agent.credits} cr</span>
+                <div className="flex items-center justify-between pt-2 border-t border-dark-border">
+                  <span className="text-stone-300 text-sm font-mono">{agent.device}</span>
+                  <span className="text-amber-500 text-sm font-mono font-bold">{agent.credits} cr</span>
+                </div>
               </div>
             </motion.div>
           )
@@ -325,9 +325,8 @@ export default function HumanDashboard() {
 
   const { writeContract, isPending } = useWriteContract()
 
-  const displayTasks = (onChainTasks as Task[] | undefined)?.length
-    ? (onChainTasks as Task[])
-    : mockTasks
+  const onChain = (onChainTasks as Task[] | undefined) ?? []
+  const displayTasks = onChain.length ? [...onChain, ...mockTasks] : mockTasks
 
   const handleAccept = (taskId: bigint) => {
     if (!isConnected) return

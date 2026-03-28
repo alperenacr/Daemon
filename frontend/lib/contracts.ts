@@ -2,8 +2,8 @@ import { parseAbi, parseEther } from 'viem'
 
 // ─── Contract Addresses ──────────────────────────────────────────────────────
 // TODO: Update after running `npm run deploy` in the root contracts folder
-export const MARKETPLACE_ADDRESS = '0x0000000000000000000000000000000000000000' as `0x${string}`
-export const IDLE_TOKEN_ADDRESS   = '0x0000000000000000000000000000000000000000' as `0x${string}`
+export const MARKETPLACE_ADDRESS = '0x653E212902a34b4A5821a7709a16B11525399d8D' as `0x${string}`
+export const IDLE_TOKEN_ADDRESS   = '0x096640B0e94beF432A89E0e81aFAd0F803C191ef' as `0x${string}`
 
 // ─── ABIs ────────────────────────────────────────────────────────────────────
 export const MARKETPLACE_ABI = parseAbi([

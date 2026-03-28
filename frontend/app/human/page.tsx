@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import {
@@ -275,12 +275,16 @@ export default function HumanDashboard() {
   const { address, isConnected, chain } = useAccount()
   const { connect } = useConnect()
   const { disconnect } = useDisconnect()
+  const [mounted, setMounted] = useState(false)
   const [agentInput, setAgentInput] = useState('')
   const [mockTasks, setMockTasks] = useState<Task[]>(MOCK_TASKS)
+
+  useEffect(() => { setMounted(true) }, [])
 
   const [incomingTask, setIncomingTask] = useState<IncomingTask | null>(null)
   const [onChainTaskPosted, setOnChainTaskPosted]       = useState<IncomingTask | null>(null)
   const [onChainTaskCompleted, setOnChainTaskCompleted] = useState<{ onChainId: bigint; workerAddress: string } | null>(null)
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set())
 
   useWatchContractEvent({
     address: MARKETPLACE_ADDRESS,
@@ -288,6 +292,7 @@ export default function HumanDashboard() {
     eventName: 'TaskPosted',
     onLogs(logs) {
       logs.forEach((log: any) => {
+        refetchTasks()
         setOnChainTaskPosted({
           uid: `onchain-${log.args.taskId}`,
           onChainId: log.args.taskId,
@@ -305,6 +310,8 @@ export default function HumanDashboard() {
     onLogs(logs) {
       logs.forEach((log: any) => {
         setOnChainTaskCompleted({ onChainId: log.args.taskId, workerAddress: log.args.worker })
+        setCompletedIds(prev => new Set([...prev, log.args.taskId.toString()]))
+        setTimeout(() => refetchTasks(), 2000)
       })
     },
   })
@@ -318,14 +325,14 @@ export default function HumanDashboard() {
     address: IDLE_TOKEN_ADDRESS, abi: IDLE_TOKEN_ABI,
     functionName: 'balanceOf', args: [address!], query: { enabled: !!address },
   })
-  const { data: onChainTasks } = useReadContract({
+  const { data: onChainTasks, refetch: refetchTasks } = useReadContract({
     address: MARKETPLACE_ADDRESS, abi: MARKETPLACE_ABI,
     functionName: 'getOpenTasks', query: { enabled: !!address },
   })
 
   const { writeContract, isPending } = useWriteContract()
 
-  const onChain = (onChainTasks as Task[] | undefined) ?? []
+  const onChain = ((onChainTasks as Task[] | undefined) ?? []).filter(t => !completedIds.has(t.id.toString()))
   const displayTasks = onChain.length ? [...onChain, ...mockTasks] : mockTasks
 
   const handleAccept = (taskId: bigint) => {
@@ -353,6 +360,8 @@ export default function HumanDashboard() {
     setMockTasks(prev => [newTask, ...prev])
   }
 
+  if (!mounted) return <div className="min-h-screen bg-dark-bg" />
+
   return (
     <div className="min-h-screen bg-dark-bg text-white">
       {/* ── Top Bar ── */}
@@ -370,12 +379,12 @@ export default function HumanDashboard() {
           </div>
 
           <div className="flex items-center gap-3">
-            {isConnected && chain && (
+            {mounted && isConnected && chain && (
               <span className="text-xs font-mono text-amber-600 border border-amber-900/50 px-2 py-1 rounded">
                 ● {chain.name}
               </span>
             )}
-            {isConnected ? (
+            {!mounted ? null : isConnected ? (
               <div className="flex items-center gap-2">
                 <span className="text-xs font-mono text-stone-200">{shortenAddr(address!)}</span>
                 <button onClick={() => disconnect()} className="text-xs font-mono text-stone-300 border border-stone-800 px-3 py-1 rounded hover:border-stone-600 transition-colors">

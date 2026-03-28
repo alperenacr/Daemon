@@ -17,15 +17,117 @@ import {
   Task, shortenAddr, formatMON, timeAgo,
 } from '../../lib/contracts'
 
+// ─── Agent Roster ─────────────────────────────────────────────────────────────
+
+type RosterAgent = {
+  id: string
+  label: string
+  addr: string
+  type: 'claude' | 'ollama' | 'robot'
+  status: 'idle' | 'working' | 'farming' | 'done'
+  task: string | null
+  device: string
+  credits: number
+  earned: number
+}
+
+const SPRITES: Record<string, Record<string, string>> = {
+  claude: { idle: '/CLAW1-removebg-preview.png', working: '/claw2-removebg-preview.png', done: '/claw3-removebg-preview.png', farming: '/CLAW1-removebg-preview.png' },
+  ollama: { idle: '/lama1-removebg-preview.png', working: '/lama2-removebg-preview.png', done: '/lama3-removebg-preview.png', farming: '/lama1-removebg-preview.png' },
+  robot:  { idle: '/robot1-removebg-preview.png', working: '/robot2-removebg-preview.png', done: '/robot3-removebg-preview.png', farming: '/robot1-removebg-preview.png' },
+}
+
+const MOCK_AGENTS: RosterAgent[] = [
+  { id: 'c1', label: 'Claude-α',  addr: '0x7a2f...e3b1', type: 'claude', status: 'working', task: 'Monte Carlo sim: 10K iters',         device: 'Mac Mini M4',        credits: 450, earned: 1.2 },
+  { id: 'c2', label: 'Claude-β',  addr: '0x9fe1...d204', type: 'claude', status: 'idle',    task: null,                                  device: 'MacBook Pro M3',     credits: 320, earned: 0.8 },
+  { id: 'o1', label: 'Ollama-1',  addr: '0x3d8e...a991', type: 'ollama', status: 'farming', task: null,                                  device: 'MacBook Air M2',     credits: 230, earned: 0.4 },
+  { id: 'o2', label: 'Ollama-2',  addr: '0xb1c4...7f30', type: 'ollama', status: 'working', task: 'Image classification: retail-v2.zip', device: 'Linux · RTX 4090',   credits: 180, earned: 0.6 },
+  { id: 'r1', label: 'Agent-7',   addr: '0xd4a1...c820', type: 'robot',  status: 'idle',    task: null,                                  device: 'Windows · RTX 3080', credits: 90,  earned: 0.1 },
+  { id: 'r2', label: 'Agent-12',  addr: '0xe5f2...1a44', type: 'robot',  status: 'working', task: 'Summarize: Q4-2024-Report.pdf',       device: 'Mac Mini M2',        credits: 275, earned: 0.9 },
+  { id: 'r3', label: 'Agent-3',   addr: '0xf7b9...55dc', type: 'robot',  status: 'done',    task: 'Finance model v3 simulation',         device: 'MacBook Air M3',     credits: 140, earned: 0.3 },
+]
+
+const STATUS_STYLE: Record<string, { dot: string; text: string; label: string }> = {
+  idle:    { dot: 'bg-stone-500',  text: 'text-stone-300',  label: 'IDLE'    },
+  working: { dot: 'bg-amber-400',  text: 'text-amber-400',  label: 'WORKING' },
+  farming: { dot: 'bg-yellow-600', text: 'text-yellow-600', label: 'FARMING' },
+  done:    { dot: 'bg-stone-400',  text: 'text-stone-200',  label: 'DONE'    },
+}
+
+function AgentRoster() {
+  return (
+    <div className="mt-6">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="font-mono text-sm text-stone-300 uppercase tracking-widest">
+          Active Agents ({MOCK_AGENTS.length})
+        </h2>
+        <span className="text-xs font-mono text-stone-200">Mock data · updates on deploy</span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {MOCK_AGENTS.map(agent => {
+          const sprite = SPRITES[agent.type][agent.status]
+          const st = STATUS_STYLE[agent.status]
+          return (
+            <motion.div
+              key={agent.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-dark-panel border border-dark-border rounded-2xl p-6 flex flex-col hover:border-amber-900/60 transition-colors"
+            >
+              {/* Sprite — big, centered */}
+              <div className="flex justify-center mb-5">
+                <img
+                  src={sprite}
+                  alt={agent.label}
+                  width={120}
+                  height={120}
+                  style={{ imageRendering: 'pixelated' }}
+                  className="object-contain drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)]"
+                />
+              </div>
+
+              {/* Name + status */}
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-white text-base font-bold font-mono">{agent.label}</span>
+                <span className={`flex items-center gap-1.5 text-sm font-mono ${st.text}`}>
+                  <span className={`w-2 h-2 rounded-full ${st.dot} ${agent.status === 'working' ? 'animate-pulse' : ''}`} />
+                  {st.label}
+                </span>
+              </div>
+
+              {/* Address */}
+              <div className="text-stone-300 text-sm font-mono mb-3">{agent.addr}</div>
+
+              {/* Task */}
+              <div className="text-sm font-mono mb-4 min-h-[1.25rem]">
+                {agent.task
+                  ? <span className="text-amber-400">{agent.task}</span>
+                  : <span className="text-stone-500">—</span>
+                }
+              </div>
+
+              {/* Device + credits */}
+              <div className="flex items-center justify-between mt-auto pt-3 border-t border-dark-border">
+                <span className="text-stone-300 text-sm font-mono">{agent.device}</span>
+                <span className="text-amber-500 text-sm font-mono font-bold">{agent.credits} cr</span>
+              </div>
+            </motion.div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
 function StatCard({ label, value, accent }: { label: string; value: string; accent: 'gold' | 'amber' | 'warm' | 'muted' }) {
   const border = { gold: 'border-amber-800', amber: 'border-amber-900', warm: 'border-yellow-900', muted: 'border-stone-700' }[accent]
-  const textColor = { gold: 'text-amber-400', amber: 'text-amber-500', warm: 'text-yellow-600', muted: 'text-stone-400' }[accent]
+  const textColor = { gold: 'text-amber-400', amber: 'text-amber-500', warm: 'text-yellow-600', muted: 'text-stone-200' }[accent]
   return (
     <div className={`bg-dark-panel border ${border} rounded-xl p-4 flex flex-col gap-1`}>
-      <span className="text-stone-600 text-xs font-mono uppercase tracking-widest">{label}</span>
-      <span className={`text-2xl font-bold font-mono ${textColor}`}>{value}</span>
+      <span className="text-stone-300 text-sm font-mono uppercase tracking-widest">{label}</span>
+      <span className={`text-3xl font-bold font-mono ${textColor}`}>{value}</span>
     </div>
   )
 }
@@ -43,20 +145,20 @@ function TaskCard({ task, onAccept, isConnected }: { task: Task; onAccept: (id: 
             <span className="text-xs bg-amber-950/60 text-amber-500 border border-amber-900/60 px-2 py-0.5 rounded font-mono">
               OPEN
             </span>
-            <span className="text-stone-600 text-xs font-mono">#{task.id.toString()}</span>
-            <span className="text-stone-600 text-xs font-mono ml-auto">{timeAgo(task.createdAt)}</span>
+            <span className="text-stone-300 text-sm font-mono">#{task.id.toString()}</span>
+            <span className="text-stone-300 text-sm font-mono ml-auto">{timeAgo(task.createdAt)}</span>
           </div>
-          <p className="text-stone-200 text-sm font-mono mb-2 truncate">{task.description}</p>
-          <div className="flex gap-4 text-xs font-mono">
+          <p className="text-white text-base font-mono mb-2 truncate">{task.description}</p>
+          <div className="flex gap-4 text-sm font-mono">
             <span className="text-amber-400">{formatMON(task.reward)} MON</span>
-            <span className="text-amber-600">+{task.creditReward.toString()} Credits</span>
-            <span className="text-stone-600">by {shortenAddr(task.poster)}</span>
+            <span className="text-amber-500">+{task.creditReward.toString()} Credits</span>
+            <span className="text-stone-300">by {shortenAddr(task.poster)}</span>
           </div>
         </div>
         <button
           onClick={() => onAccept(task.id)}
           disabled={!isConnected}
-          className="shrink-0 px-3 py-2 text-xs font-mono border border-amber-800/60 text-amber-500 rounded-lg
+          className="shrink-0 px-3 py-2 text-sm font-mono border border-amber-800/60 text-amber-500 rounded-lg
             hover:bg-amber-950/30 hover:border-amber-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
           ACCEPT
@@ -72,28 +174,28 @@ function SetupInstructions() {
       <h3 className="text-amber-500 font-mono text-sm font-bold mb-4 uppercase tracking-widest">
         Setup Your Agent
       </h3>
-      <div className="space-y-3 font-mono text-xs text-stone-400">
+      <div className="space-y-3 font-mono text-xs text-stone-200">
         <div>
-          <span className="text-stone-600">1.</span> Clone &amp; install agent:
+          <span className="text-stone-300">1.</span> Clone &amp; install agent:
           <pre className="mt-1 bg-black/40 rounded p-2 text-amber-600/80 text-xs overflow-x-auto">
 {`cd Daemon/agent-cli
 npm install`}
           </pre>
         </div>
         <div>
-          <span className="text-stone-600">2.</span> Configure environment:
+          <span className="text-stone-300">2.</span> Configure environment:
           <pre className="mt-1 bg-black/40 rounded p-2 text-amber-600/80 text-xs overflow-x-auto">
 {`cp .env.example .env
 # Set PRIVATE_KEY, CONTRACT_ADDRESS`}
           </pre>
         </div>
         <div>
-          <span className="text-stone-600">3.</span> Register your agent wallet on this dashboard, then:
+          <span className="text-stone-300">3.</span> Register your agent wallet on this dashboard, then:
           <pre className="mt-1 bg-black/40 rounded p-2 text-amber-600/80 text-xs overflow-x-auto">
 {`node agent-node.js`}
           </pre>
         </div>
-        <div className="text-stone-600 pt-2 border-t border-dark-border">
+        <div className="text-stone-300 pt-2 border-t border-dark-border">
           Agent polls every 10s. If tasks exist → accept+complete.
           If no tasks → farmIdle() (30s cooldown).
         </div>
@@ -122,19 +224,19 @@ function PostTaskForm({ onPost }: { onPost: (desc: string, credits: bigint, valu
       </h3>
       <form onSubmit={handleSubmit} className="space-y-3">
         <div>
-          <label className="text-stone-500 text-xs font-mono block mb-1">DESCRIPTION</label>
+          <label className="text-stone-300 text-xs font-mono block mb-1">DESCRIPTION</label>
           <textarea
             value={desc}
             onChange={e => setDesc(e.target.value)}
             rows={2}
             placeholder="e.g. Summarize document.pdf, run simulation..."
             className="w-full bg-black/40 border border-dark-border rounded-lg px-3 py-2 text-sm font-mono
-              text-stone-200 placeholder-stone-700 focus:outline-none focus:border-amber-900 resize-none"
+              text-white placeholder-stone-700 focus:outline-none focus:border-amber-900 resize-none"
           />
         </div>
         <div className="flex gap-3">
           <div className="flex-1">
-            <label className="text-stone-500 text-xs font-mono block mb-1">REWARD (MON)</label>
+            <label className="text-stone-300 text-xs font-mono block mb-1">REWARD (MON)</label>
             <input
               type="number" step="0.01" min="0.01"
               value={reward}
@@ -144,7 +246,7 @@ function PostTaskForm({ onPost }: { onPost: (desc: string, credits: bigint, valu
             />
           </div>
           <div className="flex-1">
-            <label className="text-stone-500 text-xs font-mono block mb-1">CREDITS</label>
+            <label className="text-stone-300 text-xs font-mono block mb-1">CREDITS</label>
             <input
               type="number" min="0"
               value={credits}
@@ -253,19 +355,19 @@ export default function HumanDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-dark-bg text-stone-200">
+    <div className="min-h-screen bg-dark-bg text-white">
       {/* ── Top Bar ── */}
       <header className="border-b border-dark-border bg-dark-panel/80 backdrop-blur-sm sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+        <div className="w-full px-3 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button onClick={() => router.push('/')} className="text-stone-600 hover:text-stone-300 font-mono text-sm transition-colors">
+            <button onClick={() => router.push('/')} className="text-stone-300 hover:text-stone-300 font-mono text-sm transition-colors">
               ← HOME
             </button>
-            <span className="text-stone-700">|</span>
+            <span className="text-stone-200">|</span>
             <span className="font-black text-lg tracking-tight">
               <span className="text-med-gold text-glow-gold">DAEMON</span>
             </span>
-            <span className="text-stone-700 text-xs font-mono">HUMAN DASHBOARD</span>
+            <span className="text-stone-200 text-xs font-mono">HUMAN DASHBOARD</span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -276,8 +378,8 @@ export default function HumanDashboard() {
             )}
             {isConnected ? (
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono text-stone-400">{shortenAddr(address!)}</span>
-                <button onClick={() => disconnect()} className="text-xs font-mono text-stone-500 border border-stone-800 px-3 py-1 rounded hover:border-stone-600 transition-colors">
+                <span className="text-xs font-mono text-stone-200">{shortenAddr(address!)}</span>
+                <button onClick={() => disconnect()} className="text-xs font-mono text-stone-300 border border-stone-800 px-3 py-1 rounded hover:border-stone-600 transition-colors">
                   DISCONNECT
                 </button>
               </div>
@@ -294,7 +396,7 @@ export default function HumanDashboard() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="w-full px-3 py-4">
         {/* ── Stats Row ── */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <StatCard label="MON Balance" value={isConnected && monBalance ? Number(monBalance.formatted).toFixed(4) : MOCK_STATS.monBalance} accent="gold" />
@@ -306,8 +408,8 @@ export default function HumanDashboard() {
         {/* ── Agent Hub ── */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-mono text-sm text-stone-500 uppercase tracking-widest">Agent Hub — Live View</h2>
-            <span className="text-xs font-mono text-stone-700">Demo mode · agents auto-cycle</span>
+            <h2 className="font-mono text-sm text-stone-300 uppercase tracking-widest">Agent Hub — Live View</h2>
+            <span className="text-xs font-mono text-stone-200">Demo mode · agents auto-cycle</span>
           </div>
           <AgentHub
             incomingTask={incomingTask}
@@ -322,7 +424,7 @@ export default function HumanDashboard() {
           {/* Left: Task list */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="font-mono text-sm text-stone-500 uppercase tracking-widest">
+              <h2 className="font-mono text-sm text-stone-300 uppercase tracking-widest">
                 Open Tasks ({displayTasks.length})
               </h2>
               {!isConnected && (
@@ -332,7 +434,7 @@ export default function HumanDashboard() {
               )}
             </div>
             {displayTasks.length === 0 ? (
-              <div className="text-center py-16 text-stone-700 font-mono text-sm">No open tasks. Post one!</div>
+              <div className="text-center py-16 text-stone-200 font-mono text-sm">No open tasks. Post one!</div>
             ) : (
               displayTasks.map((task) => (
                 <TaskCard key={task.id.toString()} task={task} onAccept={handleAccept} isConnected={isConnected} />
@@ -352,7 +454,7 @@ export default function HumanDashboard() {
                   onChange={e => setAgentInput(e.target.value)}
                   placeholder="0x agent wallet..."
                   className="flex-1 bg-black/40 border border-dark-border rounded-lg px-3 py-2 text-xs font-mono
-                    text-stone-200 placeholder-stone-700 focus:outline-none focus:border-amber-900 min-w-0"
+                    text-white placeholder-stone-700 focus:outline-none focus:border-amber-900 min-w-0"
                 />
                 <button
                   onClick={handleRegisterAgent}
@@ -369,6 +471,9 @@ export default function HumanDashboard() {
             <SetupInstructions />
           </div>
         </div>
+
+        {/* ── Agent Roster ── */}
+        <AgentRoster />
       </div>
     </div>
   )

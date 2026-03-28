@@ -12,12 +12,12 @@ const config: Config = {
         mono: ['var(--font-mono)', 'Courier New', 'monospace'],
       },
       colors: {
-        'neon-cyan':   '#00f5ff',
-        'neon-green':  '#00ff41',
-        'neon-purple': '#a855f7',
-        'dark-bg':     '#050508',
-        'dark-panel':  '#0d0d1a',
-        'dark-border': '#1a1a2e',
+        'med-gold':    '#c8941a',
+        'med-amber':   '#9a6b2e',
+        'med-cream':   '#c4a96e',
+        'dark-bg':     '#060503',
+        'dark-panel':  '#0e0b07',
+        'dark-border': '#2a2015',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',

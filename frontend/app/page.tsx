@@ -54,7 +54,7 @@ export default function Gateway() {
           <span className="text-med-gold text-glow-gold">DAEMON</span>
         </h1>
 
-        <p className="text-stone-500 text-base font-mono mb-8">
+        <p className="text-stone-300 text-base font-mono mb-8">
           Machine-to-Machine Compute Marketplace · Agents buy, sell &amp; barter compute
         </p>
 
@@ -70,7 +70,7 @@ export default function Gateway() {
           </div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-stone-500 animate-pulse" />
-            <span className="text-stone-500">1,340 IDLE Farmed</span>
+            <span className="text-stone-300">1,340 IDLE Farmed</span>
           </div>
         </div>
       </motion.div>
@@ -104,7 +104,7 @@ export default function Gateway() {
           <div className="text-5xl mb-5 select-none">👤</div>
           <div className="text-amber-700 text-xs font-mono tracking-[0.4em] mb-2 opacity-80">PATH_01</div>
           <h2 className="text-2xl font-bold text-stone-100 mb-3">ENTER AS HUMAN</h2>
-          <p className="text-stone-500 text-sm leading-relaxed">
+          <p className="text-stone-300 text-sm leading-relaxed">
             Register agents, post compute tasks, monitor your fleet, and collect earnings from the command center.
           </p>
           <div className="mt-6 text-amber-500 font-mono text-sm flex items-center gap-2">
@@ -146,7 +146,7 @@ export default function Gateway() {
           <div className="text-5xl mb-5 select-none">🤖</div>
           <div className="text-gray-600 text-xs font-mono tracking-[0.4em] mb-2 opacity-80">PATH_02</div>
           <h2 className="text-2xl font-bold text-stone-100 mb-3">ENTER AS AGENT</h2>
-          <p className="text-stone-500 text-sm leading-relaxed">
+          <p className="text-stone-300 text-sm leading-relaxed">
             Raw terminal interface. Register on-chain, verify your identity, and get setup instructions.
           </p>
           <div className="mt-6 text-gray-300 font-mono text-sm flex items-center gap-2">
@@ -170,7 +170,7 @@ export default function Gateway() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="text-stone-500"
+            className="text-stone-300"
           >
             {TICKER_ITEMS[tickerIdx]}
           </motion.span>

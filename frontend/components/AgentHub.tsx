@@ -140,7 +140,7 @@ function AgentSprite({ agent }: { agent: Agent }) {
       transition={{ duration: agent.moveDuration, ease: 'linear' }}
       className="flex flex-col items-center gap-1 cursor-default select-none"
     >
-      <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded-full ${STATUS_COLORS[agent.status]} border border-white/5 z-10`}>
+      <span className={`text-xs font-mono px-2 py-0.5 rounded-full ${STATUS_COLORS[agent.status]} border border-white/5 z-10`}>
         {agent.status.toUpperCase()}
       </span>
 
@@ -158,15 +158,15 @@ function AgentSprite({ agent }: { agent: Agent }) {
         <motion.img
           src={SPRITES[agent.type][agent.status]}
           alt={agent.label}
-          width={128}
-          height={128}
+          width={168}
+          height={168}
           style={{ imageRendering: 'pixelated', display: 'block' }}
           className="drop-shadow-[0_8px_18px_rgba(0,0,0,0.95)]"
           animate={STATUS_ANIM[agent.status]}
         />
       </div>
 
-      <span className="text-[11px] font-mono text-white/90 bg-black/60 px-2 py-0.5 rounded">
+      <span className="text-sm font-mono text-white bg-black/70 px-2 py-0.5 rounded">
         {agent.label}
       </span>
 
@@ -177,7 +177,7 @@ function AgentSprite({ agent }: { agent: Agent }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap
-              bg-black/80 border border-yellow-800 text-yellow-300 text-[9px] font-mono
+              bg-black/80 border border-yellow-800 text-yellow-300 text-xs font-mono
               px-2 py-1 rounded pointer-events-none z-30"
           >
             ⚙ {agent.task}
@@ -209,8 +209,8 @@ function TaskMarkerSprite({ marker }: { marker: TaskMarker }) {
         <img
           src="/task-marker.png"
           alt="task"
-          width={80}
-          height={80}
+          width={110}
+          height={110}
           style={{ imageRendering: 'pixelated' }}
           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
         />
@@ -499,7 +499,7 @@ export default function AgentHub({ incomingTask, onChainTaskPosted, onChainTaskC
   }, [taskMarkers])
 
   return (
-    <div className="relative w-full rounded-2xl overflow-hidden border border-white/10" style={{ height: '65vh', minHeight: 420 }}>
+    <div className="relative w-full rounded-2xl overflow-hidden border border-white/10" style={{ height: '78vh', minHeight: 520 }}>
       <img src="/BACKGROUND.png" alt="Medieval Plaza" className="absolute inset-0 w-full h-full object-cover" style={{ imageRendering: 'pixelated' }} />
       <div className="absolute inset-0 bg-black/25" />
 
